@@ -1,0 +1,236 @@
+<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPages/MasterPageFinanceReport.Master" AutoEventWireup="true"  CodeFile="IncrementalAnalysis.aspx.cs" Inherits="DFIT.Web.FinanceReport.IncrementalAnalysis" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
+    <script type="text/javascript" src="../js/My97DatePicker/WdatePicker.js">      
+    </script>
+    <script type="text/javascript">
+        function getTextboxValue() {
+            var startDateStr = document.getElementById("tbxStartDate").value;
+            var str = document.getElementById("tbxStartDate").value;
+        }
+    </script>
+
+</asp:Content>
+<asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
+    <h1>
+        Report
+    </h1>
+    <table>
+        <tr>
+            <td>
+                DateFrom:
+            </td>
+            <td>
+                <asp:TextBox ID="tbxStartDate" runat="server" onclick="WdatePicker()"> </asp:TextBox>
+            </td>
+            <td>
+                DateTo:
+            </td>
+            <td>
+                <asp:TextBox ID="tbxEndDate" runat="server" onclick="WdatePicker()"> </asp:TextBox>
+            </td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <td>
+                Report Type
+            </td>
+            <td>
+                <asp:DropDownList ID="ddlFunction" runat="server">
+                    <asp:ListItem Value="0">	Normal PO Receiving List	</asp:ListItem>
+                    <asp:ListItem Value="1">	Unnormal PO Receiving List	</asp:ListItem>
+                    <asp:ListItem Value="2">	Reuse PO List	</asp:ListItem>
+                    <asp:ListItem Value="3">	Scrap PO List	</asp:ListItem>
+                </asp:DropDownList>
+            </td>
+        </tr>
+    </table>
+    <asp:Button ID="btnSearch" runat="server" Text="Search" OnClick="btnSearch_Click" />
+    <asp:Button ID="btnExport" runat="server" Text="Export" OnClick='btnExport_Click'/>
+    <div runat="server"  id="divList1" visible="True">
+        <h2>
+            Normal PO Receiving List&nbsp;
+        </h2>
+        <asp:GridView Enabled="False" ID="gvList1" runat="server" CellPadding="4" 
+            ForeColor="#333333" GridLines="None" DataSourceID="SqlDataSource1" 
+            AllowPaging="True" AutoGenerateColumns="False">
+            <AlternatingRowStyle BackColor="White" />
+            <Columns>
+                <asp:BoundField DataField="PONO" HeaderText="PONO" SortExpression="PONO" />
+                <asp:BoundField DataField="Requestor" HeaderText="Requestor" 
+                    SortExpression="Requestor" />
+                <asp:BoundField DataField="TotalValue" HeaderText="TotalValue" 
+                    SortExpression="TotalValue" />
+                <asp:BoundField DataField="UnitPriceUSD" HeaderText="UnitPriceUSD" 
+                    SortExpression="UnitPriceUSD" />
+                <asp:BoundField DataField="QTY" HeaderText="QTY" 
+                    SortExpression="QTY" />
+                <asp:BoundField DataField="Description" HeaderText="Description" 
+                    SortExpression="Description" />
+            </Columns>
+            <EditRowStyle BackColor="#2461BF" />
+            <FooterStyle BackColor="#507CD1" Font-Bold="True" ForeColor="White" />
+            <HeaderStyle BackColor="#507CD1" Font-Bold="True" ForeColor="White" />
+            <PagerStyle BackColor="#2461BF" ForeColor="White" HorizontalAlign="Center" />
+            <RowStyle BackColor="#EFF3FB" />
+            <SelectedRowStyle BackColor="#D1DDF1" Font-Bold="True" ForeColor="#333333" />
+            <SortedAscendingCellStyle BackColor="#F5F7FB" />
+            <SortedAscendingHeaderStyle BackColor="#6D95E1" />
+            <SortedDescendingCellStyle BackColor="#E9EBEF" />
+            <SortedDescendingHeaderStyle BackColor="#4870BE" />
+
+<SortedAscendingCellStyle BackColor="#F5F7FB"></SortedAscendingCellStyle>
+
+<SortedAscendingHeaderStyle BackColor="#6D95E1"></SortedAscendingHeaderStyle>
+
+<SortedDescendingCellStyle BackColor="#E9EBEF"></SortedDescendingCellStyle>
+
+<SortedDescendingHeaderStyle BackColor="#4870BE"></SortedDescendingHeaderStyle>
+        </asp:GridView>
+        <asp:SqlDataSource ID="SqlDataSource1" runat="server" ConnectionString="<%$ AppSettings:ConnectionString %>"               
+            SelectCommand="select po.PONO  ,po.RequisitionerName as Requestor  ,po.TotalValue ,PO.UnitPriceUSD  ,po.ReceivedQty as QTY ,po.POLineDesc as Description
+                            from POReceiving left join PO on POReceiving .POLineID =PO.ID where POReceiving .StatusID =1006
+                            and PO.PONo not in ('8888888888','7777777777','6666666666','5555555555','11111111','33333333333')
+                            and PO.Deleted =0 and PO.GoodsLastRcptDate between @fromTime and @toTime  group by po.PONo ,po.RequisitionerName  ,po.TotalValue ,PO.UnitPriceUSD  ,po.ReceivedQty  ,po.POLineDesc">
+            <SelectParameters>
+                <asp:ControlParameter ControlID="tbxStartDate" DefaultValue="1990-01-01" 
+                    Name="fromTime" PropertyName="Text" />
+                <asp:ControlParameter ControlID="tbxEndDate" DefaultValue="9999-01-01" 
+                    Name="toTime" PropertyName="Text" />
+            </SelectParameters>
+        </asp:SqlDataSource>
+    </div>
+    <div runat="server"  id="divList2">
+        <h2>
+            Unnormal PO Receiving List&nbsp;
+        </h2>
+        <asp:GridView Enabled="False" ID="gvList2" runat="server" CellPadding="4" 
+            ForeColor="#333333" GridLines="None" DataSourceID="SqlDataSource2"  
+            AllowPaging="True" AutoGenerateColumns="False">
+            <AlternatingRowStyle BackColor="White" />
+            <Columns>
+                <asp:BoundField DataField="PONO" HeaderText="PONO" SortExpression="PONO" />
+                <asp:BoundField DataField="Requestor" HeaderText="Requestor" 
+                    SortExpression="Requestor" />
+                 <asp:BoundField DataField="TotalValue" HeaderText="TotalValue" 
+                    SortExpression="TotalValue" />
+                <asp:BoundField DataField="UnitPriceUSD" HeaderText="UnitPriceUSD" 
+                    SortExpression="UnitPriceUSD" />
+                <asp:BoundField DataField="QTY" HeaderText="QTY" 
+                    SortExpression="QTY" />
+                <asp:BoundField DataField="Description" HeaderText="Description" 
+                    SortExpression="Description" />
+            </Columns>
+            <EditRowStyle BackColor="#2461BF" />
+            <FooterStyle BackColor="#507CD1" Font-Bold="True" ForeColor="White" />
+            <HeaderStyle BackColor="#507CD1" Font-Bold="True" ForeColor="White" />
+            <PagerStyle BackColor="#2461BF" ForeColor="White" HorizontalAlign="Center" />
+            <RowStyle BackColor="#EFF3FB" />
+            <SelectedRowStyle BackColor="#D1DDF1" Font-Bold="True" ForeColor="#333333" />
+            <SortedAscendingCellStyle BackColor="#F5F7FB" />
+            <SortedAscendingHeaderStyle BackColor="#6D95E1" />
+            <SortedDescendingCellStyle BackColor="#E9EBEF" />
+            <SortedDescendingHeaderStyle BackColor="#4870BE" />
+        </asp:GridView>
+        <asp:SqlDataSource ID="SqlDataSource2" runat="server" ConnectionString="<%$ AppSettings:ConnectionString %>" 
+            
+            SelectCommand="select distinct po.PONO  ,po.RequisitionerName as Requestor  ,po.TotalValue ,PO.UnitPriceUSD  ,po.ReceivedQty as QTY ,po.POLineDesc as Description
+                            from POReceiving left join PO on POReceiving .POLineID =PO.ID where POReceiving .StatusID =1006
+                            and PO.PONo in ('8888888888','7777777777','6666666666','5555555555','11111111','33333333333'
+                            ) and PO.Deleted =0 and PO.GoodsLastRcptDate between @fromTime and @toTime
+                            group by po.PONo  ,po.RequisitionerName  ,po.TotalValue ,PO.UnitPriceUSD  ,po.ReceivedQty  ,po.POLineDesc">
+            <SelectParameters>
+                <asp:ControlParameter Name="fromTime" ControlID="tbxStartDate" PropertyName="Text" Type="DateTime" DefaultValue="1900-01-01" />
+                <asp:ControlParameter Name="toTime" ControlID="tbxEndDate" PropertyName="Text" Type="DateTime" DefaultValue="9999-01-01" />
+            </SelectParameters>
+        </asp:SqlDataSource>
+    </div>
+    <div runat="server"  id="divList3">
+        <h2>
+            Reuse PO List&nbsp;
+        </h2>
+        <asp:GridView Enabled="False" ID="gvList3" runat="server" CellPadding="4" 
+            ForeColor="#333333" GridLines="None" DataSourceID="SqlDataSource3" 
+            AllowPaging="True" AutoGenerateColumns="False">
+            <AlternatingRowStyle BackColor="White" />
+            <Columns>
+                <asp:BoundField DataField="PONO" HeaderText="PONO" SortExpression="PONO" />
+                <asp:BoundField DataField="Requestor" HeaderText="Requestor" 
+                    SortExpression="Requestor" />
+                 <asp:BoundField DataField="TotalValue" HeaderText="TotalValue" 
+                    SortExpression="TotalValue" />
+                <asp:BoundField DataField="UnitPriceUSD" HeaderText="UnitPriceUSD" 
+                    SortExpression="UnitPriceUSD" />
+                <asp:BoundField DataField="QTY" HeaderText="QTY" 
+                    SortExpression="QTY" />
+                <asp:BoundField DataField="Description" HeaderText="Description" 
+                    SortExpression="Description" />
+            </Columns>
+            <EditRowStyle BackColor="#2461BF" />
+            <FooterStyle BackColor="#507CD1" Font-Bold="True" ForeColor="White" />
+            <HeaderStyle BackColor="#507CD1" Font-Bold="True" ForeColor="White" />
+            <PagerStyle BackColor="#2461BF" ForeColor="White" HorizontalAlign="Center" />
+            <RowStyle BackColor="#EFF3FB" />
+            <SelectedRowStyle BackColor="#D1DDF1" Font-Bold="True" ForeColor="#333333" />
+            <SortedAscendingCellStyle BackColor="#F5F7FB" />
+            <SortedAscendingHeaderStyle BackColor="#6D95E1" />
+            <SortedDescendingCellStyle BackColor="#E9EBEF" />
+            <SortedDescendingHeaderStyle BackColor="#4870BE" />
+        </asp:GridView>
+        <asp:SqlDataSource ID="SqlDataSource3" runat="server" ConnectionString="<%$ AppSettings:ConnectionString %>" 
+            SelectCommand="select po.PONO  ,po.RequisitionerName as Requestor  ,DispositionDetails.DisposeValue as TotalValue ,PO.UnitPriceUSD ,DispositionDetails.DisposeQty as QTY ,po.POLineDesc as Description
+from DispositionDetails left join PartsTransaction on DispositionDetails.TransID=PartsTransaction.ID left join PO on DispositionDetails.POLineID=po.ID
+where PartsTransaction.StatusID in (5212) and DispositionID=4 and po.POTrnsCur='USD' and PO.GoodsLastRcptDate between @fromTime and @toTime
+">
+            <SelectParameters>
+                <asp:ControlParameter Name="fromTime" ControlID="tbxStartDate" PropertyName="Text" Type="DateTime" DefaultValue="1900-01-01" />
+                <asp:ControlParameter Name="toTime" ControlID="tbxEndDate" PropertyName="Text" Type="DateTime" DefaultValue="9999-01-01" />
+            </SelectParameters>
+        </asp:SqlDataSource>
+    </div>
+    <div runat="server"  id="divList4">
+        <h2>
+            Scrap PO List&nbsp;
+        </h2>
+        <asp:GridView Enabled="False" ID="gvList4" runat="server" CellPadding="4" 
+            ForeColor="#333333" GridLines="None" DataSourceID="SqlDataSource4" 
+            AllowPaging="True" AutoGenerateColumns="False">
+            <AlternatingRowStyle BackColor="White" />
+            <Columns>
+                <asp:BoundField DataField="PONO" HeaderText="PONO" SortExpression="PONO" />
+                <asp:BoundField DataField="Requestor" HeaderText="Requestor" 
+                    SortExpression="Requestor" />
+                 <asp:BoundField DataField="TotalValue" HeaderText="TotalValue" 
+                    SortExpression="TotalValue" />
+                <asp:BoundField DataField="UnitPriceUSD" HeaderText="UnitPriceUSD" 
+                    SortExpression="UnitPriceUSD" />
+                <asp:BoundField DataField="QTY" HeaderText="QTY" 
+                    SortExpression="QTY" />
+                <asp:BoundField DataField="Description" HeaderText="Description" 
+                    SortExpression="Description" />
+            </Columns>
+            <EditRowStyle BackColor="#2461BF" />
+            <FooterStyle BackColor="#507CD1" Font-Bold="True" ForeColor="White" />
+            <HeaderStyle BackColor="#507CD1" Font-Bold="True" ForeColor="White" />
+            <PagerStyle BackColor="#2461BF" ForeColor="White" HorizontalAlign="Center" />
+            <RowStyle BackColor="#EFF3FB" />
+            <SelectedRowStyle BackColor="#D1DDF1" Font-Bold="True" ForeColor="#333333" />
+            <SortedAscendingCellStyle BackColor="#F5F7FB" />
+            <SortedAscendingHeaderStyle BackColor="#6D95E1" />
+            <SortedDescendingCellStyle BackColor="#E9EBEF" />
+            <SortedDescendingHeaderStyle BackColor="#4870BE" />
+        </asp:GridView>
+        <asp:SqlDataSource ID="SqlDataSource4" runat="server" ConnectionString="<%$ AppSettings:ConnectionString %>" 
+            
+            SelectCommand="select po.PONO  ,po.RequisitionerName as Requestor  ,DispositionDetails.DisposeValue as TotalValue ,PO.UnitPriceUSD ,DispositionDetails.DisposeQty as QTY,po.POLineDesc as Description
+from DispositionDetails left join PartsTransaction on DispositionDetails.TransID=PartsTransaction.ID left join PO on DispositionDetails.POLineID=po.ID
+where PartsTransaction.StatusID in (5404) and po.POTrnsCur='USD' and PO.GoodsLastRcptDate between @fromTime and @toTime">
+            <SelectParameters>
+                <asp:ControlParameter Name="fromTime" ControlID="tbxStartDate" PropertyName="Text" Type="DateTime" DefaultValue="1900-01-01" />
+                <asp:ControlParameter Name="toTime" ControlID="tbxEndDate" PropertyName="Text" Type="DateTime" DefaultValue="9999-01-01" />
+            </SelectParameters>
+        </asp:SqlDataSource>
+    </div>
+
+</asp:Content>
